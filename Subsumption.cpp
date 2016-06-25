@@ -12,7 +12,7 @@ class Data{
 public:
 	Data(){};
 	virtual ~Data(){};
-	Data getData(){	};
+	Data getData();
 };
 
 class Motor{
