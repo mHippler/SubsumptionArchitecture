@@ -1,78 +1,66 @@
-//============================================================================
-// Name        : Subsumption.cpp
-// Author      : Milena Hippler
-// Description :
-//============================================================================
-
 #include <iostream>
 #include <vector>
 using namespace std;
 
 class Data{
 public:
-	Data(){};
-	virtual ~Data(){};
-	Data getData();
+	Data(){}
+	virtual ~Data(){}
+	Data getData(){}
 };
 
 class Motor{
 public:
-	Motor(){};
+	Motor(){	}
 	virtual ~Motor(){};
-	void setOutput(Data output){};
+	Data motorOutput;
+	void setOutput(Data output){
+		motorOutput = output;
+	}
 };
-
-class Layer{
-public:
-	Layer();
-	virtual ~Layer();
-};
-
 
 class Level{
+	virtual void suppressInput(Level *levelprev) = 0;
+	virtual void handleLayer() = 0;
+	virtual void inhibitOutput(Level *levelPrev) = 0;
 public:
 	Level(){}
 	virtual ~Level(){}
-	//TODO rename!!!
-	Data data; //Data input
-	Data layerInput; //Output of suppress
-	Data output; //Output for motor
-	Data dataSuppress; //Output for suppress
-	Data inhibitOut; //Output for inhibit
-	void startLevel(Level levelPrev){}; //calls Suppressor, Layer and Inhibitor
-	void startLevel(){}; //Case top level (no S and no I)
-private:
-	void suppressInput(Level levelPrev){}; //Suppressor
-	void handleLayer(){}; //Layer
-	void inhibitOutput(Level levelPrev){}; //Inhibitor
+	Data data;
+	Data dataSuppress;
+	Data layerInput;
+	Data dataInhibit;
+	Data output;
+	virtual void printLevelNumber() = 0;
+	virtual void printLevelNumber(Level *level) = 0;
 };
 
-class Level0: public Level{
+class Level0 : public Level{
 public:
-	void startLevel(Level levelPrev){
-		suppressInput(levelPrev);
-		handleLayer();
-		inhibitOutput(levelPrev);
-	}
-	void startLevel(){
+	Level0(){}
+	virtual ~Level0(){}
+	void printLevelNumber(){
 		//Get data directly from Data
 		layerInput = data.getData();
 		handleLayer();
-		output = inhibitOut;
+		//Set output directly
+		output = dataInhibit;
 	}
-private:
-	void suppressInput(Level levelPrev){
+	void printLevelNumber(Level *level){
+		suppressInput(level);
+		handleLayer();
+		inhibitOutput(level);
+	}
+	void suppressInput(Level *levelprev){
 		//Sensor input
 		Data dataIn = data.getData();
-		//Previous Layer output
-		Data supressIn = levelPrev.dataSuppress;
-
+		//Previous Layer Suppress output
+		Data supressIn = levelprev->dataSuppress;
 		/*
-		 * Algorithm
-		 * Merge to one input data
-		 * set layerInput for this layer
+		 * Input Algorithm
+		 * use as input: dataIn, suressIn
+		 * set as output: layerInput
 		 */
-
 		//TODO Wie am Besten darstellen?
 		layerInput = supressIn;
 	}
@@ -83,55 +71,55 @@ private:
 		 */
 		//TODO Wie am Besten darstellen?
 		dataSuppress = layerInput;
-
 		/**
 		 * Layer Algorithm
-		 * use layerInput as input
-		 * set inhibitOut as output for inhibitor
+		 * us  as input: layerInput
+		 * set as output: dataInhibit
 		 */
 		//TODO Wie am Besten darstellen?
-		inhibitOut = layerInput;
+		dataInhibit = layerInput;
 	}
-	void inhibitOutput(Level levelPrev){
-		Data outputPrevLevel = levelPrev.inhibitOut;
-		Data outputThis = inhibitOut;
-
+	void inhibitOutput(Level *levelPrev){
+		//Layer Output
+		Data outputLevel = dataInhibit;
+		//Previous Layer output
+		Data outputPrevLevel = levelPrev->dataInhibit;
 		/**
-		 * Algortihm
-		 * Merge to one output data
-		 * set output for motor
+		 * Inhibit Algortihm
+		 * use as input: outputLevel, outputPrevLevel
+		 * set as output: output
 		 */
 		//TODO Wie am Besten darstellen?
 		output = outputPrevLevel;
 	}
 };
 
-class Level1: public Level{
+class Level1 : public Level{
 public:
-	void startLevel(Level levelPrev){
-		suppressInput(levelPrev);
-		handleLayer();
-		inhibitOutput(levelPrev);
-	}
-	void startLevel(){
+	Level1(){}
+	virtual ~Level1(){}
+	void printLevelNumber(){
 		//Get data directly from Data
 		layerInput = data.getData();
 		handleLayer();
-		output = inhibitOut;
+		//Set output directly
+		output = dataInhibit;
 	}
-private:
-	void suppressInput(Level levelPrev){
+	void printLevelNumber(Level *level){
+		suppressInput(level);
+		handleLayer();
+		inhibitOutput(level);
+	}
+	void suppressInput(Level *levelprev){
 		//Sensor input
 		Data dataIn = data.getData();
-		//Previous Layer output
-		Data supressIn = levelPrev.dataSuppress;
-
+		//Previous Layer Suppress output
+		Data supressIn = levelprev->dataSuppress;
 		/*
-		 * Algorithm
-		 * Merge to one input data
-		 * set layerInput for this layer
+		 * Input Algorithm
+		 * use as input: dataIn, suressIn
+		 * set as output: layerInput
 		 */
-
 		//TODO Wie am Besten darstellen?
 		layerInput = supressIn;
 	}
@@ -142,55 +130,55 @@ private:
 		 */
 		//TODO Wie am Besten darstellen?
 		dataSuppress = layerInput;
-
 		/**
 		 * Layer Algorithm
-		 * use layerInput as input
-		 * set inhibitOut as output for inhibitor
+		 * us  as input: layerInput
+		 * set as output: dataInhibit
 		 */
 		//TODO Wie am Besten darstellen?
-		inhibitOut = layerInput;
+		dataInhibit = layerInput;
 	}
-	void inhibitOutput(Level levelPrev){
-		Data outputPrevLevel = levelPrev.inhibitOut;
-		Data outputThis = inhibitOut;
-
+	void inhibitOutput(Level *levelPrev){
+		//Layer Output
+		Data outputThis = dataInhibit;
+		//Previous Layer output
+		Data outputPrevLevel = levelPrev->dataInhibit;
 		/**
-		 * Algortihm
-		 * Merge to one output data
-		 * set output for motor
+		 * Inhibit Algortihm
+		 * use as input: outputLevel, outputPrevLevel
+		 * set as output: output
 		 */
 		//TODO Wie am Besten darstellen?
 		output = outputPrevLevel;
 	}
 };
 
-class Level2: public Level{
+class Level2 : public Level{
 public:
-	void startLevel(Level levelPrev){
-		suppressInput(levelPrev);
-		handleLayer();
-		inhibitOutput(levelPrev);
-	}
-	void startLevel(){
+	Level2(){}
+	virtual ~Level2(){}
+	void printLevelNumber(){
 		//Get data directly from Data
 		layerInput = data.getData();
 		handleLayer();
-		output = inhibitOut;
+		//Set output directly
+		output = dataInhibit;
 	}
-private:
-	void suppressInput(Level levelPrev){
+	void printLevelNumber(Level *level){
+		suppressInput(level);
+		handleLayer();
+		inhibitOutput(level);
+	}
+	void suppressInput(Level *levelprev){
 		//Sensor input
 		Data dataIn = data.getData();
-		//Previous Layer output
-		Data supressIn = levelPrev.dataSuppress;
-
+		//Previous Layer Suppress output
+		Data supressIn = levelprev->dataSuppress;
 		/*
-		 * Algorithm
-		 * Merge to one input data
-		 * set layerInput for this layer
+		 * Input Algorithm
+		 * use as input: dataIn, suressIn
+		 * set as output: layerInput
 		 */
-
 		//TODO Wie am Besten darstellen?
 		layerInput = supressIn;
 	}
@@ -201,69 +189,65 @@ private:
 		 */
 		//TODO Wie am Besten darstellen?
 		dataSuppress = layerInput;
-
 		/**
 		 * Layer Algorithm
-		 * use layerInput as input
-		 * set inhibitOut as output for inhibitor
+		 * us  as input: layerInput
+		 * set as output: dataInhibit
 		 */
 		//TODO Wie am Besten darstellen?
-		inhibitOut = layerInput;
+		dataInhibit = layerInput;
 	}
-	void inhibitOutput(Level levelPrev){
-		Data outputPrevLevel = levelPrev.inhibitOut;
-		Data outputThis = inhibitOut;
-
+	void inhibitOutput(Level *levelPrev){
+		//Layer Output
+		Data outputThis = dataInhibit;
+		//Previous Layer output
+		Data outputPrevLevel = levelPrev->dataInhibit;
 		/**
-		 * Algortihm
-		 * Merge to one output data
-		 * set output for motor
+		 * Inhibit Algortihm
+		 * use as input: outputLevel, outputPrevLevel
+		 * set as output: output
 		 */
 		//TODO Wie am Besten darstellen?
 		output = outputPrevLevel;
 	}
 };
-
 
 class Controller{
+	vector<Level*> levels;
+	Motor motor;
 public:
 	Controller(){};
-	virtual ~Controller(){};
+	virtual ~Controller(){}
 	void registerLevel(Level *level){
-		//Adds the levels to the vector
-		levels.push_back(*level);
+		levels.push_back(level);
 	}
 	void arbitrate(){
+		//Top Level (has neither S nor I)
 		int i = levels.size()-1;
-		//Top Level
-		levels[i].startLevel();
+		levels[i]->printLevelNumber();
 		//Other levels
 		for(i = levels.size()-2; i >= 0; i--){
-			levels[i].startLevel(levels[i+1]);
+			levels[i]->printLevelNumber(levels[i+1]);
 		}
-		//Output from the last inhibitor of the lowest level
-		motor.setOutput(levels.front().output);
+		//Set final output
+		motor.setOutput(levels.front()->output);
 	}
-private:
-	vector<Level> levels;
-	Motor motor;
 };
 
 int main() {
-	Controller *control = new Controller();
+	//Create Level
 	Level0 *level0 = new Level0();
-	Level1 *level1 = new Level1();;
-	Level2 *level2 = new Level2();;
-
-	//Level registrieren
+	Level1 *level1 = new Level1();
+	Level2 *level2 = new Level2();
+	//Create Controller
+	Controller *control = new Controller();
+	//register Level
 	control->registerLevel(level0);
 	control->registerLevel(level1);
 	control->registerLevel(level2);
-
-	//TODO Condition
+	//Start subsumption procedure
 	while(1){
 		control->arbitrate();
 	}
-
 	return 0;
 }
