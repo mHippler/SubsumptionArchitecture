@@ -31,25 +31,25 @@ public:
 	Data layerInput;
 	Data dataInhibit;
 	Data output;
-	virtual void printLevelNumber() = 0;
-	virtual void printLevelNumber(Level *level) = 0;
+	virtual void startLevel() = 0;
+	virtual void startLevel(Level *levelPrev) = 0;
 };
 
 class Level0 : public Level{
 public:
 	Level0(){}
 	virtual ~Level0(){}
-	void printLevelNumber(){
+	void startLevel(){
 		//Get data directly from Data
 		layerInput = data.getData();
 		handleLayer();
 		//Set output directly
 		output = dataInhibit;
 	}
-	void printLevelNumber(Level *level){
-		suppressInput(level);
+	void startLevel(Level *levelPrev){
+		suppressInput(levelPrev);
 		handleLayer();
-		inhibitOutput(level);
+		inhibitOutput(levelPrev);
 	}
 	void suppressInput(Level *levelprev){
 		//Sensor input
@@ -98,17 +98,17 @@ class Level1 : public Level{
 public:
 	Level1(){}
 	virtual ~Level1(){}
-	void printLevelNumber(){
+	void startLevel(){
 		//Get data directly from Data
 		layerInput = data.getData();
 		handleLayer();
 		//Set output directly
 		output = dataInhibit;
 	}
-	void printLevelNumber(Level *level){
-		suppressInput(level);
+	void startLevel(Level *levelPrev){
+		suppressInput(levelPrev);
 		handleLayer();
-		inhibitOutput(level);
+		inhibitOutput(levelPrev);
 	}
 	void suppressInput(Level *levelprev){
 		//Sensor input
@@ -157,17 +157,17 @@ class Level2 : public Level{
 public:
 	Level2(){}
 	virtual ~Level2(){}
-	void printLevelNumber(){
+	void startLevel(){
 		//Get data directly from Data
 		layerInput = data.getData();
 		handleLayer();
 		//Set output directly
 		output = dataInhibit;
 	}
-	void printLevelNumber(Level *level){
-		suppressInput(level);
+	void startLevel(Level *levelPrev){
+		suppressInput(levelPrev);
 		handleLayer();
-		inhibitOutput(level);
+		inhibitOutput(levelPrev);
 	}
 	void suppressInput(Level *levelprev){
 		//Sensor input
@@ -224,10 +224,10 @@ public:
 	void arbitrate(){
 		//Top Level (has neither S nor I)
 		int i = levels.size()-1;
-		levels[i]->printLevelNumber();
+		levels[i]->startLevel();
 		//Other levels
 		for(i = levels.size()-2; i >= 0; i--){
-			levels[i]->printLevelNumber(levels[i+1]);
+			levels[i]->startLevel(levels[i+1]);
 		}
 		//Set final output
 		motor.setOutput(levels.front()->output);
